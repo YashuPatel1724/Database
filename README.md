@@ -74,3 +74,85 @@ DELETE FROM Employee WHERE Age < 20
 
 ## Table
 <img src="https://github.com/user-attachments/assets/91281c88-40f7-4066-b207-d9844a009f33">
+
+## Table in App Inspection
+<img src="https://github.com/user-attachments/assets/1f72d30f-ab25-4326-97bb-6f117def430f">
+
+## Database Helper class
+```bash
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+
+class DbHelper {
+  static DbHelper dbHelper = DbHelper._();
+
+  DbHelper._();
+
+  Database? _db;
+
+  Future get database async => _db ?? await initDatabase();
+// Future getDatabase()
+// async {
+//   if(_db!=null)
+//     {
+//       return _db;
+//     }
+//   else
+//     {
+//       return await initDatabase();
+//     }
+// }
+  // database create table
+  Future initDatabase() async {
+    final path = await getDatabasesPath();
+    final dbPath = join(path, 'finace.db');
+
+    _db = await openDatabase(dbPath, version: 1, onCreate: (db, version) async {
+      String sql = '''CREATE TABLE finace(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      amount REAL NOT NULL,
+      isIncome INTEGER NOT NULL,
+      category TEXT);
+      ''';
+      await db.execute(sql);
+    },);
+    return _db;
+  }
+
+  Future insertData()
+  async {
+    Database? db = await database;
+    String sql = '''INSERT INTO finace (amount,isIncome,category)
+    VALUES (500,0,"Samsung");
+    ''';
+    await db!.rawInsert(sql);
+  }
+}
+```
+
+## Controller
+```bash
+import 'package:get/get.dart';
+
+import '../helper/db_helper.dart';
+
+class DbController extends GetxController
+{
+  @override
+  void onInit() {
+    // TODO: implement onInit
+    super.onInit();
+    initDb();
+  }
+
+  Future initDb()
+  async {
+    await DbHelper.dbHelper.database;
+  }
+
+  Future insertRecord()
+  async {
+    await DbHelper.dbHelper.insertData();
+  }
+}
+```
